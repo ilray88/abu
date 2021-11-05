@@ -248,11 +248,11 @@ def _do_plot_candle(date, p_open, high, low, close, volume, view_index, symbol, 
     # 需要内部import不然每次import abupy都有warning，特别是子进程很烦人
     try:
         # noinspection PyUnresolvedReferences, PyDeprecation
-        import mpl_finance as mpf
+        import matplotlib.finance as mpf
     except ImportError:
         # 2.2 才会有
         # noinspection PyUnresolvedReferences, PyDeprecation
-        import mpl_finance as mpf
+        import matplotlib.mpl_finance as mpf
 
     if not g_only_draw_price:
         # 成交量，价格都绘制
