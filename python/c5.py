@@ -100,8 +100,8 @@ def sample_513():
     5.1.3 k线图的绘制
     :return:
     """
-    import matplotlib.finance as mpf
-
+    import mpl_finance as mpf
+    from matplotlib.dates import date2num
     __colorup__ = "red"
     __colordown__ = "green"
     # 为了示例清晰，只拿出前30天的交易数据绘制蜡烛图，
@@ -112,8 +112,8 @@ def sample_513():
     for index, (d, o, c, h, l) in enumerate(
             zip(tsla_part_df.index, tsla_part_df.open, tsla_part_df.close,
                 tsla_part_df.high, tsla_part_df.low)):
-        # 蜡烛图的日期要使用matplotlib.finance.date2num进行转换为特有的数字值
-        d = mpf.date2num(d)
+        # 蜡烛图的日期要使用date2num进行转换为特有的数字值
+        d = date2num(d)
         # 日期，开盘，收盘，最高，最低组成tuple对象val
         val = (d, o, c, h, l)
         # 加val加入qutotes
@@ -731,10 +731,10 @@ def sample_582_1():
     nd.atr.plot_atr_from_klpd(tsla_df)
 
 if __name__ == "__main__":
-    sample_511()
+    # sample_511()
     # sample_512()
     # sample_513()
-    # sample_52()
+    sample_52()
     # sample_531_1()
     # sample_531_2()
     # sample_532()
