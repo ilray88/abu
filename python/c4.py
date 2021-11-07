@@ -413,7 +413,9 @@ def sample_45_2():
     4.6 pandas三维面板的使用
 """
 
-
+import os
+os.environ["http_proxy"] = "http://192.168.5.1:7890"
+os.environ["https_proxy"] = "http://192.168.5.1:7890"
 def sample_46():
     """
     4.6 pandas三维面板的使用
@@ -448,7 +450,7 @@ def sample_46():
 
 
 if __name__ == "__main__":
-    sample_411()
+    # sample_411()
     # sample_412()
     # sample_413()
     # sample_414()
@@ -466,4 +468,4 @@ if __name__ == "__main__":
     # sample_442()
     # sample_45_1()
     # sample_45_2()
-    # sample_46()
+    sample_46()
