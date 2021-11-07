@@ -216,11 +216,11 @@ def _do_plot_candle_html(date, p_open, high, low, close, symbol, save):
     p.xaxis.major_label_orientation = pi / 4
     p.grid.grid_line_alpha = 0.3
 
-    p.segment(date, high, date, low, color="black")
+    p.segment(date.to_datetime(), high, date.to_datetime(), low, color="black")
     # noinspection PyUnresolvedReferences
-    p.rect(date[inc], mids[inc], w, spans[inc], fill_color=__colorup__, line_color=__colorup__)
+    p.rect(date.to_datetime()[inc], mids[inc], w, spans[inc], fill_color=__colorup__, line_color=__colorup__)
     # noinspection PyUnresolvedReferences
-    p.rect(date[dec], mids[dec], w, spans[dec], fill_color=__colordown__, line_color=__colordown__)
+    p.rect(date.to_datetime()[dec], mids[dec], w, spans[dec], fill_color=__colordown__, line_color=__colordown__)
 
     bp.show(p)
     if save:
@@ -248,15 +248,11 @@ def _do_plot_candle(date, p_open, high, low, close, volume, view_index, symbol, 
     # 需要内部import不然每次import abupy都有warning，特别是子进程很烦人
     try:
         # noinspection PyUnresolvedReferences, PyDeprecation
-        import mpl_finance as mpf
-        from matplotlib.dates import date2num
+        import matplotlib.finance as mpf
     except ImportError:
         # 2.2 才会有
         # noinspection PyUnresolvedReferences, PyDeprecation
-        import mplfinance as mpf
-        # import matplotlib.dates as mpf
-        # from matplotlib.dates import date2num
-
+        import matplotlib.mpl_finance as mpf
 
     if not g_only_draw_price:
         # 成交量，价格都绘制
@@ -269,8 +265,7 @@ def _do_plot_candle(date, p_open, high, low, close, volume, view_index, symbol, 
         # 端线图绘制
         qutotes = []
         for index, (d, o, c, l, h) in enumerate(zip(date, p_open, close, low, high)):
-            # from matplotlib.dates import date2num
-            d = index if minute else date2num(d)
+            d = index if minute else mpf.date2num(d)
             val = (d, o, c, l, h)
             qutotes.append(val)
         # plot_day_summary_oclh接口，与mpf.candlestick_ochl不同，即数据顺序为开收低高
@@ -279,8 +274,7 @@ def _do_plot_candle(date, p_open, high, low, close, volume, view_index, symbol, 
         # k线图绘制
         qutotes = []
         for index, (d, o, c, h, l) in enumerate(zip(date, p_open, close, high, low)):
-            # from matplotlib.dates import date2num
-            d = index if minute else date2num(d)
+            d = index if minute else mpf.date2num(d)
             val = (d, o, c, h, l)
             qutotes.append(val)
         # mpf.candlestick_ochl即数据顺序为开收高低

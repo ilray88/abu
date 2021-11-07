@@ -385,8 +385,8 @@ def sample_45_1():
     :return:
     """
     for kl_index in np.arange(0, tsla_df.shape[0]):
-        # 通过iloc一个一个拿
-        today = tsla_df.iloc[kl_index]
+        # 通过ix一个一个拿
+        today = tsla_df.ix[kl_index]
         judge_jump(today)
 
     # filter按照顺序只显示这些列, 表4-26所示
@@ -448,7 +448,7 @@ def sample_46():
 
 
 if __name__ == "__main__":
-    # sample_411()
+    sample_411()
     # sample_412()
     # sample_413()
     # sample_414()
@@ -466,4 +466,4 @@ if __name__ == "__main__":
     # sample_442()
     # sample_45_1()
     # sample_45_2()
-    sample_46()
+    # sample_46()
