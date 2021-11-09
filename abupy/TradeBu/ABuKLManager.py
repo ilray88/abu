@@ -26,7 +26,9 @@ from ..CoreBu.ABuFixes import filter
 __author__ = '阿布'
 __weixin__ = 'abu_quant'
 
-
+import tushare as ts
+import talib
+import pandas as pd
 # noinspection PyUnusedLocal
 @add_process_env_sig
 def gen_dict_pick_time_kl_pd(target_symbols, capital, benchmark, show_progress=True):
@@ -56,9 +58,19 @@ def gen_dict_pick_time_kl_pd(target_symbols, capital, benchmark, show_progress=T
             for epoch, target_symbol in enumerate(target_symbols):
                 progress.show(epoch + 1)
                 # 迭代target_symbols，获取对应时间交易序列
-                kl_pd = ABuSymbolPd.make_kl_df(target_symbol, data_mode=EMarketDataSplitMode.E_DATA_SPLIT_UNDO,
-                                               benchmark=benchmark, n_folds=benchmark.n_folds)
-                # 以target_symbol为key将时间金融序列kl_pd添加到返回字典中
+                # kl_pd = ABuSymbolPd.make_kl_df(target_symbol, data_mode=EMarketDataSplitMode.E_DATA_SPLIT_UNDO,
+                #                                benchmark=benchmark, n_folds=benchmark.n_folds)
+                # # 以target_symbol为key将时间金融序列kl_pd添加到返回字典中
+                kl_pd = ts.get_hist_data(target_symbol)[::-1]
+                tt = pd.to_datetime(kl_pd.index)
+                kl_pd['date'] = tt.year * 10000 + tt.month * 100 + tt.day
+                kl_pd['key'] = list(range(len(kl_pd)))
+                kl_pd['date_week'] = tt.dayofweek
+                kl_pd['pre_close'] = kl_pd.close.shift(1)
+                kl_pd.name = target_symbol
+                kl_pd['atr21'] = talib.ATR(kl_pd.high, kl_pd.low, kl_pd.close, timeperiod=21)
+                kl_pd['atr14'] = talib.ATR(kl_pd.high, kl_pd.low, kl_pd.close, timeperiod=14)
+                kl_pd.index = pd.to_datetime(kl_pd.index)
                 pick_kl_pd_dict[target_symbol] = kl_pd
     _batch_gen_dict_pick_time_kl_pd()
     return pick_kl_pd_dict
@@ -149,13 +161,36 @@ class AbuKLManager(object):
             # 类变量设置选股时段benchmark
             setattr(self, pre_bc_key, pre_benchmark)
         # 以选股时段benchmark做为参数，获取选股时段对应symbol的金融时间序列
-        return ABuSymbolPd.make_kl_df(target_symbol, data_mode=EMarketDataSplitMode.E_DATA_SPLIT_UNDO,
-                                      benchmark=pre_benchmark, n_folds=pre_benchmark.n_folds, start=start, end=end)
+        kl_pd = ts.get_hist_data(target_symbol)[::-1]
+        tt = pd.to_datetime(kl_pd.index)
+        kl_pd['date'] = tt.year * 10000 + tt.month * 100 + tt.day
+        kl_pd['key'] = list(range(len(kl_pd)))
+        kl_pd['date_week'] = tt.dayofweek
+        kl_pd['pre_close'] = kl_pd.close.shift(1)
+        kl_pd.name = target_symbol
+        kl_pd['atr21'] = talib.ATR(kl_pd.high, kl_pd.low, kl_pd.close, timeperiod=21)
+        kl_pd['atr14'] = talib.ATR(kl_pd.high, kl_pd.low, kl_pd.close, timeperiod=14)
+        kl_pd.index = pd.to_datetime(kl_pd.index)
+        return kl_pd
+        '''return ABuSymbolPd.make_kl_df(target_symbol, data_mode=EMarketDataSplitMode.E_DATA_SPLIT_UNDO,
+									  benchmark=pre_benchmark, n_folds=pre_benchmark.n_folds, start=start, end=end)'''
 
     def _fetch_pick_time_kl_pd(self, target_symbol):
         """获取择时时段金融时间序列"""
-        return ABuSymbolPd.make_kl_df(target_symbol, data_mode=EMarketDataSplitMode.E_DATA_SPLIT_UNDO,
-                                      benchmark=self.benchmark, n_folds=self.benchmark.n_folds)
+        kl_pd = ts.get_hist_data(target_symbol)[::-1]
+        tt = pd.to_datetime(kl_pd.index)
+        kl_pd['date'] = tt.year * 10000 + tt.month * 100 + tt.day
+        kl_pd['key'] = list(range(len(kl_pd)))
+        kl_pd['date_week'] = tt.dayofweek
+        kl_pd['pre_close'] = kl_pd.close.shift(1)
+        kl_pd.name = target_symbol
+        kl_pd['atr21'] = talib.ATR(kl_pd.high, kl_pd.low, kl_pd.close, timeperiod=21)
+        kl_pd['atr14'] = talib.ATR(kl_pd.high, kl_pd.low, kl_pd.close, timeperiod=14)
+        kl_pd.index = pd.to_datetime(kl_pd.index)
+        return kl_pd
+
+    '''return ABuSymbolPd.make_kl_df(target_symbol, data_mode=EMarketDataSplitMode.E_DATA_SPLIT_UNDO,
+								   benchmark=self.benchmark, n_folds=self.benchmark.n_folds) '''
 
     def get_pick_time_kl_pd(self, target_symbol):
         """对外获取择时时段金融时间序列，首先在内部择时字典中寻找，没找到使用_fetch_pick_time_kl_pd获取，且保存择时字典"""

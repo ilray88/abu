@@ -17,7 +17,9 @@ from ..CoreBu.ABuFixes import six
 
 __author__ = '阿布'
 __weixin__ = 'abu_quant'
-
+import tushare as ts
+import talib
+import pandas as pd
 
 class AbuBenchmark(PickleStateMixin):
     """基准类，混入PickleStateMixin，因为在abu.store_abu_result_tuple会进行对象本地序列化"""
@@ -62,9 +64,16 @@ class AbuBenchmark(PickleStateMixin):
         self.end = end
         self.n_folds = n_folds
         # 基准获取数据使用data_mode=EMarketDataSplitMode.E_DATA_SPLIT_SE，即不需要对齐其它，只需要按照时间切割
+        '''# 基准获取数据使用data_mode=EMarketDataSplitMode.E_DATA_SPLIT_SE，即不需要对齐其它，只需要按照时间切割
         self.kl_pd = ABuSymbolPd.make_kl_df(benchmark, data_mode=EMarketDataSplitMode.E_DATA_SPLIT_SE,
                                             n_folds=n_folds,
-                                            start=start, end=end)
+                                            start=start, end=end)                   '''
+        self.kl_pd = ts.get_hist_data('hs300')[::-1]
+        self.kl_pd['atr21'] = talib.ATR(self.kl_pd.high, self.kl_pd.low, self.kl_pd.close, timeperiod=21)
+        self.kl_pd['key'] = list(range(len(self.kl_pd)))
+        tt = pd.to_datetime(self.kl_pd.index)
+        self.kl_pd['date'] = tt.year * 10000 + tt.month * 100 + tt.day
+        self.kl_pd.index = tt
 
         if rs and self.kl_pd is None:
             # 如果基准时间序列都是none，就不要再向下运行了

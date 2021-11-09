@@ -355,11 +355,12 @@ def combine_pre_kl_pd(kl_pd, n_folds=1):
     :return: 结果是和输入kl_pd合并后的总kl
     """
 
-    # 获取kl_pd的起始时间
+    '''# 获取kl_pd的起始时间
     end = ABuDateUtil.timestamp_to_str(kl_pd.index[0])
     # kl_pd的起始时间做为end参数通过make_kl_df和n_folds参数获取之前的一段时间序列
     pre_kl_pd = make_kl_df(kl_pd.name, data_mode=ABuEnv.EMarketDataSplitMode.E_DATA_SPLIT_SE, n_folds=n_folds,
-                           end=end)
+                           end=end)'''
+    pre_kl_pd = None
     # 再合并两段时间序列，pre_kl_pd[:-1]跳过重复的end
     combine_kl = kl_pd if pre_kl_pd is None else pre_kl_pd[:-1].append(kl_pd)
     # 根据combine_kl长度重新进行key计算
